@@ -1,4 +1,5 @@
-const { app, BrowserWindow } = require("electron");
+const { app, BrowserWindow, Notification } = require("electron");
+const { ipcMain } = require("electron/main");
 const path = require("path");
 const isDev = !app.isPackaged;
 
@@ -9,6 +10,8 @@ function createWindow() {
     webPreferences: {
       nodeIntegration: false,
       contextIsolation: true,
+      worldSafeExecuteJavaScript: true,
+      preload: path.join(__dirname, "preload.js"),
     },
   });
   win.loadFile("index.html");
@@ -22,6 +25,12 @@ if (isDev) {
 }
 app.whenReady().then(createWindow);
 
+ipcMain.on("notify", (_, message) => {
+  new Notification({
+    title: "notification",
+    body: message,
+  }).show();
+});
 app.on("window-all-closed", () => {
   if (process.platform !== "darwin") {
     app.quit();
