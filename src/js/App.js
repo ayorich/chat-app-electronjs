@@ -1,6 +1,7 @@
 import React from "react";
 import HomeView from "./views/Home";
 import LoginView from "./views/Login";
+import ChatView from "./views/Chat";
 import RegisterView from "./views/Register";
 import SettingsView from "./views/Settings";
 import { HashRouter as Router, Switch, Route } from "react-router-dom";
@@ -14,6 +15,9 @@ export default function App() {
         <Switch>
           <Route path="/settings">
             <SettingsView />
+          </Route>
+          <Route path="/chat">
+            <ChatView />
           </Route>
           <Route path="/login">
             <LoginView />
