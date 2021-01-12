@@ -1,7 +1,9 @@
 import React from "react";
 import { Link, useHistory } from "react-router-dom";
+
 export default function Navbar() {
   const { goBack, push } = useHistory();
+
   return (
     <div className="chat-navbar">
       <nav className="chat-navbar-inner">
