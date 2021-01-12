@@ -1,4 +1,21 @@
 const path = require("path");
+const dotenv = require("dotenv");
+const { DefinePlugin } = require("webpack");
+
+// Get the root path (assuming your webpack config is in the root of your project!)
+const currentPath = path.join(__dirname);
+
+// Create the fallback path (the production .env)
+const basePath = currentPath + "/.env";
+
+// call dotenv and it will return an Object with a parsed key
+const env = dotenv.config({ path: basePath }).parsed;
+
+// reduce it to a nice object, the same as before
+const envKeys = Object.keys(env).reduce((prev, next) => {
+  prev[`process.env.${next}`] = JSON.stringify(env[next]);
+  return prev;
+}, {});
 
 module.exports = {
   mode: "development",
@@ -41,7 +58,7 @@ module.exports = {
       },
     ],
   },
-  plugins: [],
+  plugins: [new DefinePlugin(envKeys)],
   resolve: {
     extensions: [".js"],
   },
