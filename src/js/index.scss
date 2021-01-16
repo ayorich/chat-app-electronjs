@@ -28,10 +28,17 @@ $brand-facebook: #3b5998 !default;
 html,
 body {
   height: 100%;
+  font-family: Merriweather, serif;
 }
 
 #chatApp {
   height: 100%;
+}
+.avatar {
+  vertical-align: middle;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
 }
 
 .content-wrapper {

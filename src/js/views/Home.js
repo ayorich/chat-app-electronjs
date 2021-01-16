@@ -4,6 +4,7 @@ import AvaliableChatList from "../components/AvaliableChatList";
 import ViewTitle from "../components/shared/ViewTitle";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchChats } from "../actions/chats";
+import BaseLayout from "../layouts/Base";
 
 export default function Home() {
   const dispatch = useDispatch();
@@ -14,14 +15,16 @@ export default function Home() {
   }, [dispatch]);
 
   return (
-    <div className="row no-gutters fh">
-      <div className="col-3 fh">
-        <JoinedChatList chats={chats} />
+    <BaseLayout>
+      <div className="row no-gutters fh">
+        <div className="col-3 fh">
+          <JoinedChatList chats={chats} />
+        </div>
+        <div className="col-9 fh">
+          <ViewTitle text={`Choose your channel`} />
+          <AvaliableChatList chats={chats} />
+        </div>
       </div>
-      <div className="col-9 fh">
-        <ViewTitle text={`Choose your channel`} />
-        <AvaliableChatList chats={chats} />
-      </div>
-    </div>
+    </BaseLayout>
   );
 }
