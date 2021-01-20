@@ -18,12 +18,17 @@ export const fetchChats = () => async (dispatch, getState) => {
     },
     { joined: [], available: [] }
   );
-  console.log(sortedChats);
+  // console.log(sortedChats);
   dispatch({
     type: "CHATS_FETCH_SUCCESS",
     ...sortedChats,
   });
 };
+
+export const joinChat = (chat, uid) => (dispatch) =>
+  api
+    .joinChat(uid, chat.id)
+    .then(() => dispatch({ type: "CHATS_JOIN_SUCCESS", chat }));
 
 export const createChat = (formData, userId) => async (dispatch) => {
   const newChat = { ...formData };
@@ -32,8 +37,20 @@ export const createChat = (formData, userId) => async (dispatch) => {
   const chatId = await api.createChat(newChat);
   dispatch({ type: "CHATS_CREATE_SUCCESS" });
   await api.joinChat(userId, chatId);
-  dispatch({ type: "CHATS_JOIN_SUCCESS" });
+  dispatch({ type: "CHATS_JOIN_SUCCESS", chat: { ...newChat, id: chatId } });
   return chatId;
 };
+
+export const subscribeToChat = (chatId) => (dispatch) =>
+  api.subscribeToChat(chatId, async (chat) => {
+    const joinedUsers = await Promise.all(
+      chat.joinedUsers.map(async (userRef) => {
+        const userSnapshot = await userRef.get();
+        return userSnapshot.data();
+      })
+    );
+    console.log(joinedUsers);
+    dispatch({ type: "CHATS_SET_ACTIVE_CHAT", chat });
+  });
 
 // https://banner2.cleanpng.com/20180627/qvc/kisspng-the-legend-of-zelda-majora-s-mask-discord-compute-discord-icon-5b3371b7b55eb4.6840271215300981037429.jpg
