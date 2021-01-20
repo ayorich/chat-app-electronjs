@@ -5,12 +5,15 @@ import ViewTitle from "../components/shared/ViewTitle";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchChats } from "../actions/chats";
 import { withBaseLayout } from "../layouts/Base";
+import Notification from "../utils/notifications";
+import { Link } from "react-router-dom";
 
 function Home() {
   const dispatch = useDispatch();
   const chats = useSelector((state) => state.chats.items);
 
   useEffect(() => {
+    Notification.setUp();
     dispatch(fetchChats());
   }, [dispatch]);
 
@@ -20,7 +23,11 @@ function Home() {
         <JoinedChatList chats={chats} />
       </div>
       <div className="col-9 fh">
-        <ViewTitle text={`Choose your channel`} />
+        <ViewTitle text={`Choose your channel`}>
+          <Link className="btn btn-outline-primary" to="/chatCreate">
+            New
+          </Link>
+        </ViewTitle>
         <AvaliableChatList chats={chats} />
       </div>
     </div>
