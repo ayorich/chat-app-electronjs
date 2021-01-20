@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useRef } from "react";
 import { useParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import ChatUsersList from "../components/ChatUsersList";
@@ -9,6 +9,7 @@ import ViewTitle from "../components/shared/ViewTitle";
 import { subscribeToChat, subscribeToProfile } from "../actions/chats";
 function Chat() {
   const { id } = useParams();
+  const peopleWatchers = useRef({});
   const dispatch = useDispatch();
   const activeChat = useSelector(({ chats }) => {
     // console.log(chats);
@@ -21,6 +22,7 @@ function Chat() {
 
     return () => {
       unsubFromChat();
+      unsubFromJoinedUsers();
     };
   }, []);
 
@@ -29,12 +31,22 @@ function Chat() {
   }, [joinedUsers]);
 
   const subscribeToJoinedUsers = (jUser) => {
-    console.log(jUser);
     jUser.forEach((user) => {
-      dispatch(subscribeToProfile(user.uid));
+      if (!peopleWatchers.current[user.uid]) {
+        peopleWatchers.current[user.uid] = dispatch(
+          subscribeToProfile(user.uid)
+        );
+      }
     });
   };
 
+  const unsubFromJoinedUsers = () => {
+    Object.keys(peopleWatchers.current).forEach((id) =>
+      peopleWatchers.current[id]()
+    );
+  };
+
+  console.log(peopleWatchers);
   return (
     <div className="row no-gutters fh">
       <div className="col-3 fh">
