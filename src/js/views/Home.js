@@ -10,7 +10,8 @@ import { Link } from "react-router-dom";
 
 function Home() {
   const dispatch = useDispatch();
-  const chats = useSelector((state) => state.chats.items);
+  const joinedChats = useSelector(({ chats }) => chats.joined);
+  const availableChats = useSelector(({ chats }) => chats.available);
 
   useEffect(() => {
     Notification.setUp();
@@ -20,7 +21,7 @@ function Home() {
   return (
     <div className="row no-gutters fh">
       <div className="col-3 fh">
-        <JoinedChatList chats={chats} />
+        <JoinedChatList chats={joinedChats} />
       </div>
       <div className="col-9 fh">
         <ViewTitle text={`Choose your channel`}>
@@ -28,7 +29,7 @@ function Home() {
             New
           </Link>
         </ViewTitle>
-        <AvaliableChatList chats={chats} />
+        <AvaliableChatList chats={availableChats} />
       </div>
     </div>
   );
