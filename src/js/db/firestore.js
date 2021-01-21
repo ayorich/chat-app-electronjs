@@ -11,5 +11,8 @@ const config = {
   appId: process.env.FIREBASE_APP_ID,
   measurementId: process.env.FIREBASE_MEASUREMENT_ID,
 };
+
+export const { Timestamp } = firebase.firestore;
+
 // Initialize Firebase
 export default firebase.initializeApp(config).firestore();

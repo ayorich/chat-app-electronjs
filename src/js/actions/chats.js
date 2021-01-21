@@ -60,4 +60,27 @@ export const subscribeToProfile = (uid, chatId) => (dispatch) =>
     dispatch({ type: "CHATS_UPDATE_USER_STATE", user, chatId });
   });
 
+export const sendChatMessage = (message, chatId) => (dispatch, getState) => {
+  const newMessage = { ...message };
+  const { user } = getState().auth;
+  const userRef = db.doc(`profiles/${user.uid}`);
+  newMessage.author = userRef;
+  return api
+    .sendChatMessage(newMessage, chatId)
+    .then(() => dispatch({ type: "CHATS_MESSAGE_SENT" }));
+};
+
+export const subscribeToMessages = (chatId) => (dispatch) => {
+  return api.subscribeToMessages(chatId, (messages) => {
+    const chatMessages = messages.map((message) => {
+      if (message.type === "added") {
+        return { id: message.doc.id, ...message.doc.data() };
+      }
+    });
+    // console.log(chatMessages);
+
+    dispatch({ type: "CHATS_SET_MESSAGES", chatMessages, chatId });
+    return chatMessages;
+  });
+};
 // https://banner2.cleanpng.com/20180627/qvc/kisspng-the-legend-of-zelda-majora-s-mask-discord-compute-discord-icon-5b3371b7b55eb4.6840271215300981037429.jpg

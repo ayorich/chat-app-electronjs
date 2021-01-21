@@ -6,8 +6,14 @@ import ChatMessagesList from "../components/ChatMessagesList";
 import { withBaseLayout } from "../layouts/Base";
 
 import ViewTitle from "../components/shared/ViewTitle";
-import { subscribeToChat, subscribeToProfile } from "../actions/chats";
+import {
+  subscribeToChat,
+  subscribeToProfile,
+  sendChatMessage,
+  subscribeToMessages,
+} from "../actions/chats";
 import LoadingView from "../components/shared/LoadingView";
+import Messenger from "../components/Messenger";
 function Chat() {
   const { id } = useParams();
   const peopleWatchers = useRef({});
@@ -20,7 +26,7 @@ function Chat() {
 
   useEffect(() => {
     const unsubFromChat = dispatch(subscribeToChat(id));
-
+    dispatch(subscribeToMessages(id));
     return () => {
       unsubFromChat();
       unsubFromJoinedUsers();
@@ -30,6 +36,13 @@ function Chat() {
   useEffect(() => {
     joinedUsers && subscribeToJoinedUsers(joinedUsers);
   }, [joinedUsers]);
+
+  const sendMessage = useCallback(
+    (message) => {
+      dispatch(sendChatMessage(message, id));
+    },
+    [id]
+  );
 
   const subscribeToJoinedUsers = useCallback(
     (jUser) => {
@@ -53,6 +66,7 @@ function Chat() {
   if (!activeChat?.id) {
     return <LoadingView message="Loading chat" />;
   }
+
   // console.log(peopleWatchers);
   return (
     <div className="row no-gutters fh">
@@ -64,6 +78,7 @@ function Chat() {
           text={`Channel:${activeChat ? activeChat.name : "loading..."}`}
         />
         <ChatMessagesList />
+        <Messenger onSubmit={sendMessage} />
       </div>
     </div>
   );
