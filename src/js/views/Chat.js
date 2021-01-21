@@ -11,22 +11,34 @@ import {
   subscribeToProfile,
   sendChatMessage,
   subscribeToMessages,
+  registerMessageSubscription,
 } from "../actions/chats";
 import LoadingView from "../components/shared/LoadingView";
 import Messenger from "../components/Messenger";
+
 function Chat() {
   const { id } = useParams();
   const peopleWatchers = useRef({});
+  const messageList = useRef();
   const dispatch = useDispatch();
   const activeChat = useSelector(({ chats }) => {
     // console.log(chats);
     return chats.activeChats[id];
   });
+  const messages = useSelector(({ chats }) => chats.messages[id]);
+  const messagesSub = useSelector(({ chats }) => chats.messagesSubs[id]);
+
   const joinedUsers = activeChat?.joinedUsers;
 
   useEffect(() => {
     const unsubFromChat = dispatch(subscribeToChat(id));
-    dispatch(subscribeToMessages(id));
+
+    //register unsubscribtion
+    if (!messagesSub) {
+      const unsubFromMessages = dispatch(subscribeToMessages(id));
+      dispatch(registerMessageSubscription(id, unsubFromMessages));
+    }
+
     return () => {
       unsubFromChat();
       unsubFromJoinedUsers();
@@ -39,7 +51,9 @@ function Chat() {
 
   const sendMessage = useCallback(
     (message) => {
-      dispatch(sendChatMessage(message, id));
+      dispatch(sendChatMessage(message, id)).then(() =>
+        messageList.current.scrollIntoView(false)
+      );
     },
     [id]
   );
@@ -77,7 +91,7 @@ function Chat() {
         <ViewTitle
           text={`Channel:${activeChat ? activeChat.name : "loading..."}`}
         />
-        <ChatMessagesList />
+        <ChatMessagesList innerRef={messageList} messages={messages} />
         <Messenger onSubmit={sendMessage} />
       </div>
     </div>

@@ -71,16 +71,37 @@ export const sendChatMessage = (message, chatId) => (dispatch, getState) => {
 };
 
 export const subscribeToMessages = (chatId) => (dispatch) => {
-  return api.subscribeToMessages(chatId, (messages) => {
-    const chatMessages = messages.map((message) => {
-      if (message.type === "added") {
-        return { id: message.doc.id, ...message.doc.data() };
+  return api.subscribeToMessages(chatId, async (changes) => {
+    const messages = changes.map((change) => {
+      if (change.type === "added") {
+        return { id: change.doc.id, ...change.doc.data() };
       }
     });
-    // console.log(chatMessages);
-
-    dispatch({ type: "CHATS_SET_MESSAGES", chatMessages, chatId });
-    return chatMessages;
+    const messagesWithAuthor = [];
+    const cache = {};
+    for await (let message of messages) {
+      if (cache[message.author.id]) {
+        message.author = cache[message.author.id];
+      } else {
+        const userSnapshot = await message.author.get();
+        cache[userSnapshot.id] = userSnapshot.data();
+        message.author = cache[userSnapshot.id];
+      }
+      messagesWithAuthor.push(message);
+    }
+    // console.log(cache);
+    // console.log(messagesWithAuthor);
+    return dispatch({
+      type: "CHATS_SET_MESSAGES",
+      messages: messagesWithAuthor,
+      chatId,
+    });
   });
 };
+
+export const registerMessageSubscription = (chatId, messageSub) => ({
+  type: "CHATS_REGISTER_MESSAGE_SUB",
+  sub: messageSub,
+  chatId,
+});
 // https://banner2.cleanpng.com/20180627/qvc/kisspng-the-legend-of-zelda-majora-s-mask-discord-compute-discord-icon-5b3371b7b55eb4.6840271215300981037429.jpg
