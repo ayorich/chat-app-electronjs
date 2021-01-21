@@ -16,6 +16,7 @@ import StoreProvider from "./store/StoreProvider";
 import { listenToAuthChanges } from "./actions/auth";
 import LoadingView from "./components/shared/LoadingView";
 import { listenToConnectionChanges } from "./actions/app";
+import { checkUserConnection } from "./actions/connection";
 
 function AuthRoute({ children, ...rest }) {
   const user = useSelector(({ auth }) => auth.user);
@@ -40,6 +41,7 @@ function ChatApp() {
   const dispatch = useDispatch();
   const isChecking = useSelector(({ auth }) => auth.isChecking);
   const isOnline = useSelector(({ app }) => app.isOnline);
+  const user = useSelector(({ auth }) => auth.user);
 
   useEffect(() => {
     const unsubFromAuth = dispatch(listenToAuthChanges());
@@ -50,6 +52,15 @@ function ChatApp() {
     };
   }, [dispatch]);
 
+  useEffect(() => {
+    let unsubFromUserConnection;
+    if (user?.uid) {
+      unsubFromUserConnection = dispatch(checkUserConnection(user.uid));
+    }
+    return () => {
+      unsubFromUserConnection && unsubFromUserConnection();
+    };
+  }, [dispatch, user]);
   if (!isOnline) {
     return (
       <LoadingView message="application has been disconnected from the internet. Please reconnect" />
