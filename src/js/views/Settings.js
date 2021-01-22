@@ -1,7 +1,19 @@
-import React from "react";
+import React, { useCallback } from "react";
 import { withBaseLayout } from "../layouts/Base";
+import { useDispatch, useSelector } from "react-redux";
+import { updateSettings } from "../actions/settings";
 
 function Settings() {
+  const dispatch = useDispatch();
+  const { isDarkTheme, showNotifications, playSound } = useSelector(
+    ({ settings }) => settings
+  );
+
+  const handleChange = useCallback((e) => {
+    const { checked, name } = e.target;
+    // console.log(checked);
+    dispatch(updateSettings(name, checked));
+  }, []);
   return (
     <div className="centered-view">
       <div className="centered-container">
@@ -11,6 +23,8 @@ function Settings() {
             <div className="my-3">
               <div className="form-check">
                 <input
+                  checked={isDarkTheme}
+                  onChange={handleChange}
                   name="isDarkTheme"
                   type="checkbox"
                   className="form-check-input"
@@ -19,6 +33,8 @@ function Settings() {
               </div>
               <div className="form-check">
                 <input
+                  checked={showNotifications}
+                  onChange={handleChange}
                   name="showNotifications"
                   type="checkbox"
                   className="form-check-input"
@@ -27,6 +43,8 @@ function Settings() {
               </div>
               <div className="form-check">
                 <input
+                  checked={playSound}
+                  onChange={handleChange}
                   name="playSound"
                   type="checkbox"
                   className="form-check-input"
@@ -34,7 +52,11 @@ function Settings() {
                 <label className="form-check-label">Sound notification</label>
               </div>
             </div>
-            <button type="button" onClick={() => {}} className="btn btn-danger">
+            <button
+              type="button"
+              onClick={() => electron.appApi.quitApp()}
+              className="btn btn-danger"
+            >
               Quit App
             </button>
           </div>

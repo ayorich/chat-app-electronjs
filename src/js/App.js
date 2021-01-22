@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 
 import { useDispatch, useSelector } from "react-redux";
 import HomeView from "./views/Home";
@@ -17,6 +17,7 @@ import { listenToAuthChanges } from "./actions/auth";
 import LoadingView from "./components/shared/LoadingView";
 import { listenToConnectionChanges } from "./actions/app";
 import { checkUserConnection } from "./actions/connection";
+import { loadInitialSettings } from "./actions/settings";
 
 function AuthRoute({ children, ...rest }) {
   const user = useSelector(({ auth }) => auth.user);
@@ -37,6 +38,15 @@ function AuthRoute({ children, ...rest }) {
   );
 }
 
+const ContentWrapper = ({ children }) => {
+  const isDarkTheme = useSelector(({ settings }) => settings.isDarkTheme);
+  return (
+    <div className={`content-wrapper ${isDarkTheme ? "dark" : "light"}`}>
+      {children}
+    </div>
+  );
+};
+
 function ChatApp() {
   const dispatch = useDispatch();
   const isChecking = useSelector(({ auth }) => auth.isChecking);
@@ -44,6 +54,7 @@ function ChatApp() {
   const user = useSelector(({ auth }) => auth.user);
 
   useEffect(() => {
+    dispatch(loadInitialSettings());
     const unsubFromAuth = dispatch(listenToAuthChanges());
     const unsubFromConnection = dispatch(listenToConnectionChanges());
     return function () {
@@ -73,7 +84,7 @@ function ChatApp() {
   // console.log(navigator.onLine);
   return (
     <Router>
-      <div className="content-wrapper">
+      <ContentWrapper>
         <Switch>
           <Route path="/" exact>
             <WelcomeView />
@@ -91,7 +102,7 @@ function ChatApp() {
             <ChatView />
           </AuthRoute>
         </Switch>
-      </div>
+      </ContentWrapper>
     </Router>
   );
 }

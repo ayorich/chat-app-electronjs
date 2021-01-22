@@ -31,6 +31,9 @@ ipcMain.on("notify", (_, message) => {
     body: message,
   }).show();
 });
+ipcMain.on("app-quit", () => {
+  app.quit();
+});
 app.on("window-all-closed", () => {
   if (process.platform !== "darwin") {
     app.quit();
